@@ -1,0 +1,73 @@
+Create MySQL Table:
+CREATE DATABASE studentdb;
+USE studentdb;
+CREATE TABLE attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_name VARCHAR(100),
+    date DATE,
+    status VARCHAR(10)
+);
+
+
+attendance.jsp
+<%@ page import="java.sql.*" %>
+<%
+    String msg = "";
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String name = request.getParameter("student_name");
+        String date = request.getParameter("date");
+        String status = request.getParameter("status");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/studentdb", "root", "password");
+            PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO attendance (student_name, date, status) VALUES (?, ?, ?)");
+            ps.setString(1, name);
+            ps.setString(2, date);
+            ps.setString(3, status);
+            ps.executeUpdate();
+            msg = "Attendance saved successfully!";
+            conn.close();
+        } catch (Exception e) {
+            msg = "Error: " + e.getMessage();
+        }
+    }
+%>
+<!DOCTYPE html>
+<html>
+<head><title>Student Attendance Portal</title></head>
+<body>
+    <h2>Enter Attendance</h2>
+    <form method="post">
+        Name: <input type="text" name="student_name" required><br><br>
+        Date: <input type="date" name="date" required><br><br>
+        Status:
+        <select name="status">
+            <option>Present</option>
+            <option>Absent</option>
+        </select><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <p style="color:green;"><%= msg %></p>
+</body>
+</html>
+
+
+OUTPUT
+Enter Attendance
+
+Name:     [______________]
+Date:     [  yyyy-mm-dd  ]
+Status:   [Present ▼]
+          [Absent]
+[ Submit ]
+
+Name: John Doe
+Date: 2025-04-05
+Status: Present
+
+Attendance saved successfully!
+
+
